@@ -13,6 +13,7 @@ extern crate volatile;
 #[macro_use]
 mod drivers;
 mod util;
+mod cpu;
 
 #[lang = "panic_fmt"]
 #[no_mangle]
@@ -32,6 +33,8 @@ pub extern "C" fn rust_begin_panic(
 pub fn _start() -> ! {
     print!("Hello");
     println!(", some numbers: {} \"{}\"", 42, 1.337);
+
+    cpu::pic::remap();
 
     loop {
         util::cpu_relax();
