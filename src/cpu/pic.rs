@@ -1,4 +1,4 @@
-use drivers::ports::{inb, outb};
+use drivers::ports::{inb, outb, wait};
 
 const PIC1_CMD_IO_PORT: u16 = 0x0020;
 const PIC2_CMD_IO_PORT: u16 = 0x00A0;
@@ -20,18 +20,24 @@ pub fn remap() {
 
 	// initialize both PICs
 	outb(PIC1_CMD_IO_PORT, ICW1);
+	wait();
 	outb(PIC2_CMD_IO_PORT, ICW1);
+	wait();
 
 	// set vector offset of pic1 to 0x20
 	outb(PIC1_DATA_IO_PORT, PIC1_VECTOR_OFFSET);
+	wait();
 	// set vector offset of pic2 to 0x28
 	outb(PIC2_DATA_IO_PORT, PIC2_VECTOR_OFFSET);
+	wait();
 
 	// tell PIC1 about PIC2 at IRQ2 (0000 0100)
 	outb(PIC1_DATA_IO_PORT, 4);
+	wait();
 
 	// tell PIC2 its cascade identity (0000 0010)
 	outb(PIC2_DATA_IO_PORT, 2);
+	wait();
 
 	// set both PICs to 8086 mode
 	outb(PIC1_DATA_IO_PORT, ICW4);
