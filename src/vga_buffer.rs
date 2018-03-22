@@ -9,6 +9,7 @@ const BUFFER_WIDTH: usize = 80;
 lazy_static! {
     pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer {
         column_position: 0,
+        current_line: 0,
         color_code: ColorCode::new(Color::Green, Color::Black),
         buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
     });
@@ -17,6 +18,7 @@ lazy_static! {
 /// Encapsulates writing to the VGA buffer
 pub struct Writer {
     column_position: usize,
+    current_line: usize,
     color_code: ColorCode,
     buffer: &'static mut Buffer,
 }
@@ -31,7 +33,7 @@ impl Writer {
                     self.new_line();
                 }
 
-                let row = BUFFER_HEIGHT - 1;
+                let row = self.current_line;
                 let col = self.column_position;
 
                 let color_code = self.color_code;
@@ -53,13 +55,20 @@ impl Writer {
 
     /// Advance writer
     fn new_line(&mut self) {
-        for row in 1..BUFFER_HEIGHT {
-            for col in 0..BUFFER_WIDTH {
-                let character = self.buffer.chars[row][col].read();
-                self.buffer.chars[row - 1][col].write(character);
+        let current_line = self.current_line;
+        // Check if the next line will be past the screen
+        if current_line + 1 > BUFFER_HEIGHT - 1 {
+            // Shift all characters up one row
+            for row in 1..BUFFER_HEIGHT {
+                for col in 0..BUFFER_WIDTH {
+                    let character = self.buffer.chars[row][col].read();
+                    self.buffer.chars[row - 1][col].write(character);
+                }
             }
+            self.clear_row(current_line);
+        } else {
+            self.current_line += 1;
         }
-        self.clear_row(BUFFER_HEIGHT - 1);
         self.column_position = 0;
     }
 
