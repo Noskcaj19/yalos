@@ -12,6 +12,7 @@ extern crate volatile;
 
 #[macro_use]
 mod vga_buffer;
+mod util;
 
 #[lang = "panic_fmt"]
 #[no_mangle]
@@ -22,7 +23,9 @@ pub extern "C" fn rust_begin_panic(
     column: u32,
 ) -> ! {
     println!("Panic at {}:{}, {}", file, line, msg);
-    loop {}
+    loop {
+        util::cpu_relax();
+    }
 }
 
 #[no_mangle]
@@ -30,5 +33,7 @@ pub fn _start() -> ! {
     print!("Hello");
     println!(", some numbers: {} \"{}\"", 42, 1.337);
 
-    loop {}
+    loop {
+        util::cpu_relax();
+    }
 }
