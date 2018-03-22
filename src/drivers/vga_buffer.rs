@@ -141,7 +141,7 @@ struct Buffer {
 
 /// Macro for printing to the standard output.
 macro_rules! print {
-    ($($arg:tt)*) => ($crate::vga_buffer::print(format_args!($($arg)*)))
+    ($($arg:tt)*) => ($crate::drivers::vga_buffer::print(format_args!($($arg)*)))
 }
 
 /// Macro for printing to the standard output, with a newline.

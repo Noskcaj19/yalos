@@ -11,7 +11,7 @@ extern crate spin;
 extern crate volatile;
 
 #[macro_use]
-mod vga_buffer;
+mod drivers;
 mod util;
 
 #[lang = "panic_fmt"]
