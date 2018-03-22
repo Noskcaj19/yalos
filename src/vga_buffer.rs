@@ -137,6 +137,7 @@ macro_rules! print {
 
 /// Macro for printing to the standard output, with a newline.
 macro_rules! println {
+    () => (print!("\n"));
     ($fmt:expr) => (print!(concat!($fmt, "\n")));
     ($fmt:expr, $($arg:tt)*) => (print!(concat!($fmt, "\n"), $($arg)*))
 }
