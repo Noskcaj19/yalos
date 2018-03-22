@@ -20,7 +20,7 @@ pub extern "C" fn rust_begin_panic(
     msg: core::fmt::Arguments,
     file: &'static str,
     line: u32,
-    column: u32,
+    _column: u32,
 ) -> ! {
     println!("Panic at {}:{}, {}", file, line, msg);
     loop {
