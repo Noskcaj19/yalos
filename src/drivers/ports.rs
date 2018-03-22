@@ -1,5 +1,10 @@
 #![allow(dead_code)]
 
+/// Writes to an unused port, supposedly takes long enough to make most things work
+pub fn wait() {
+    outb(0x80, 0x00);
+}
+
 /// Read a `u8` from `port`
 pub fn inb(port: u16) -> u8 {
     let result: u8;
