@@ -28,7 +28,7 @@ pub fn initalize() {
                 lock[i].set_handler_fn(empty_lower);
             }
             41...256 => {
-                lock[i].set_handler_fn(empty_lower);
+                lock[i].set_handler_fn(empty_upper);
             }
             _ => {}
         }
