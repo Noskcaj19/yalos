@@ -32,6 +32,7 @@ impl Writer {
     pub fn write_byte(&mut self, byte: u8) {
         match byte {
             b'\n' => self.new_line(),
+            b'\r' => self.column_position = 0,
             127 => self.backspace(),
             byte => {
                 if self.column_position >= BUFFER_WIDTH {
