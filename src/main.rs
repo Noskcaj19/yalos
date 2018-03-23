@@ -25,7 +25,7 @@ pub extern "C" fn rust_begin_panic(
 ) -> ! {
     println!("Panic at {}:{}, {}", file, line, msg);
     loop {
-        util::cpu_relax();
+        util::halt();
     }
 }
 
@@ -37,6 +37,6 @@ pub fn _start() -> ! {
     cpu::pic::remap();
 
     loop {
-        util::cpu_relax();
+        util::halt();
     }
 }
