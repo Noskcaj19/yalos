@@ -34,12 +34,17 @@ pub extern "C" fn rust_begin_panic(
 
 #[no_mangle]
 pub fn _start() -> ! {
-    print!("Hello");
-    println!(", some numbers: {} \"{}\"", 42, 1.337);
+    // print!("Hello");
+    // println!(", some numbers: {} \"{}\"", 42, 1.337);
+
+    println!("{:^80}", "YALOS 0.0.1");
 
     cpu::pic::remap();
 
     cpu::idt::initalize();
+
+    let _keyboard = drivers::keyboard::initialize();
+    // drivers::keyboard::initialize();
 
     loop {
         util::halt();

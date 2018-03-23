@@ -12,7 +12,7 @@ lazy_static! {
         current_line: 0,
         color_code: ColorCode::new(Color::Green, Color::Black),
         buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
-    });
+    },);
 }
 
 /// Encapsulates writing to the VGA buffer
@@ -24,10 +24,15 @@ pub struct Writer {
 }
 
 impl Writer {
+    pub fn write_cell(&mut self, row: usize, column: usize, screen_char: ScreenChar) {
+        self.buffer.chars[row][column].write(screen_char);
+    }
+
     /// Writes a single byte to the VGA buffer
     pub fn write_byte(&mut self, byte: u8) {
         match byte {
             b'\n' => self.new_line(),
+            127 => self.backspace(),
             byte => {
                 if self.column_position >= BUFFER_WIDTH {
                     self.new_line();
@@ -37,13 +42,22 @@ impl Writer {
                 let col = self.column_position;
 
                 let color_code = self.color_code;
-                self.buffer.chars[row][col].write(ScreenChar {
-                    ascii_char: byte,
-                    color_code,
-                });
+                self.write_cell(
+                    row,
+                    col,
+                    ScreenChar {
+                        ascii_char: byte,
+                        color_code,
+                    },
+                );
+                // Set the color of the next space so the scanline is visible
+                if col <= BUFFER_WIDTH - 2 {
+                    self.clear_cell(row, col + 1);
+                }
                 self.column_position += 1;
             }
         }
+        Self::move_cursor(self.column_position as u16, self.current_line as u16);
     }
 
     /// Writes an entire string to the VGA buffer
@@ -70,6 +84,26 @@ impl Writer {
             self.current_line += 1;
         }
         self.column_position = 0;
+        // Set the color of the next space so the scanline is visible
+        let (row, col) = (self.current_line, self.column_position);
+        self.clear_cell(row, col);
+    }
+
+    /// Delete the last character
+    fn backspace(&mut self) {
+        if self.column_position > 0 {
+            self.column_position -= 1;
+        }
+        let (row, col) = (self.current_line, self.column_position);
+        self.clear_cell(row, col);
+    }
+
+    pub fn move_cursor(x: u16, y: u16) {
+        let pos = y * BUFFER_WIDTH as u16 + x;
+        ::drivers::ports::outb(0x3D4, 0x0F);
+        ::drivers::ports::outb(0x3D5, (pos & 0xFF) as u8);
+        ::drivers::ports::outb(0x3D4, 0x0E);
+        ::drivers::ports::outb(0x3D5, ((pos >> 8) & 0xFF) as u8);
     }
 
     /// Clears a single row of the VGA buffer
@@ -80,8 +114,18 @@ impl Writer {
         };
 
         for col in 0..BUFFER_WIDTH {
-            self.buffer.chars[row][col].write(blank);
+            self.write_cell(row, col, blank);
         }
+    }
+
+    /// Clears a single cell of the VGA buffer
+    fn clear_cell(&mut self, row: usize, column: usize) {
+        let blank = ScreenChar {
+            ascii_char: b' ',
+            color_code: self.color_code,
+        };
+
+        self.write_cell(row, column, blank);
     }
 }
 
@@ -129,7 +173,7 @@ impl ColorCode {
 /// Represents a character on the screen, contains both the ascii ordinal and ColorCode
 #[derive(Debug, Clone, Copy)]
 #[repr(C)]
-struct ScreenChar {
+pub struct ScreenChar {
     ascii_char: u8,
     color_code: ColorCode,
 }

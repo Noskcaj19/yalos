@@ -21,11 +21,9 @@ pub fn halt() {
 /// This is a macro because the argument needs to be an immediate.
 #[macro_export]
 macro_rules! int {
-    ( $x:expr ) => {
-        {
-            unsafe {
-                asm!("int $0" :: "N" ($x));
-            }
+    ($x: expr) => {{
+        unsafe {
+            asm!("int $0" :: "N" ($x));
         }
-    };
+    }};
 }
