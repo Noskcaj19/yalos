@@ -10,6 +10,13 @@ pub fn cpu_relax() {
     }
 }
 
+/// Halt the cpu
+pub fn halt() {
+    unsafe {
+        asm!("hlt");
+    }
+}
+
 /// Generate a software interrupt.
 /// This is a macro because the argument needs to be an immediate.
 #[macro_export]

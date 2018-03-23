@@ -43,7 +43,14 @@ pub fn remap() {
 	outb(PIC1_DATA_IO_PORT, ICW4);
 	outb(PIC2_DATA_IO_PORT, ICW4);
 
-	// restore masks
-	outb(PIC1_DATA_IO_PORT, pic1_mask);
-	outb(PIC2_DATA_IO_PORT, pic2_mask);
+	// Unmask interrupts
+	outb(0x21, 0x00);
+	outb(0xa1, 0x00);
+}
+
+pub fn eoi(interrupt: u16) {
+	if interrupt >= 40 {
+		::drivers::ports::outb(0xA0, 0x20);
+	}
+	::drivers::ports::outb(0x20, 0x20);
 }
