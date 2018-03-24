@@ -39,9 +39,7 @@ pub struct Keyboard {
     right_shift: bool,
 }
 
-pub fn initialize() {
-    ::cpu::idt::IDT.lock()[33].set_handler_fn(handler);
-}
+pub fn initialize() {}
 
 static US: [[char; 2]; 58] = [
     ['\0', '\0'],
