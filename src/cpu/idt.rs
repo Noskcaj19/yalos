@@ -5,6 +5,7 @@ lazy_static! {
         let mut idt = Idt::new();
         // TODO: Add exceptions
 
+        idt.interrupts[0].set_handler_fn(::cpu::pit::handler);
         idt.interrupts[1].set_handler_fn(::drivers::keyboard::handler);
         idt
     };
