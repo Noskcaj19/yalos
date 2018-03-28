@@ -1,4 +1,4 @@
-use drivers::ports::{inb, outb, wait};
+use super::port::{inb, outb, wait};
 
 const PIC1_CMD_IO_PORT: u16 = 0x0020;
 const PIC2_CMD_IO_PORT: u16 = 0x00A0;
@@ -50,7 +50,7 @@ pub fn remap() {
 
 pub fn eoi(interrupt: u16) {
 	if interrupt >= 40 {
-		::drivers::ports::outb(0xA0, 0x20);
+		outb(0xA0, 0x20);
 	}
-	::drivers::ports::outb(0x20, 0x20);
+	outb(0x20, 0x20);
 }

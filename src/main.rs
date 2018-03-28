@@ -13,10 +13,9 @@ extern crate volatile;
 extern crate x86_64;
 
 #[macro_use]
+mod arch;
 mod drivers;
-#[macro_use]
 mod util;
-mod cpu;
 
 #[lang = "panic_fmt"]
 #[no_mangle]
@@ -39,9 +38,9 @@ pub fn _start() -> ! {
 
     println!("{:^80}", "YALOS 0.0.1");
 
-    cpu::pic::remap();
+    arch::device::pic::remap();
 
-    cpu::idt::initalize();
+    arch::idt::initalize();
 
     let _keyboard = drivers::keyboard::initialize();
     // drivers::keyboard::initialize();

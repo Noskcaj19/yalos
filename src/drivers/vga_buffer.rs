@@ -101,10 +101,11 @@ impl Writer {
 
     pub fn move_cursor(x: u16, y: u16) {
         let pos = y * BUFFER_WIDTH as u16 + x;
-        ::drivers::ports::outb(0x3D4, 0x0F);
-        ::drivers::ports::outb(0x3D5, (pos & 0xFF) as u8);
-        ::drivers::ports::outb(0x3D4, 0x0E);
-        ::drivers::ports::outb(0x3D5, ((pos >> 8) & 0xFF) as u8);
+        use arch::device::port::outb;
+        outb(0x3D4, 0x0F);
+        outb(0x3D5, (pos & 0xFF) as u8);
+        outb(0x3D4, 0x0E);
+        outb(0x3D5, ((pos >> 8) & 0xFF) as u8);
     }
 
     /// Clears a single row of the VGA buffer
@@ -182,18 +183,6 @@ pub struct ScreenChar {
 /// VGA Text screen buffer
 struct Buffer {
     chars: [[Volatile<ScreenChar>; BUFFER_WIDTH]; BUFFER_HEIGHT],
-}
-
-/// Macro for printing to the standard output.
-macro_rules! print {
-    ($($arg:tt)*) => ($crate::drivers::vga_buffer::print(format_args!($($arg)*)))
-}
-
-/// Macro for printing to the standard output, with a newline.
-macro_rules! println {
-    () => (print!("\n"));
-    ($fmt:expr) => (print!(concat!($fmt, "\n")));
-    ($fmt:expr, $($arg:tt)*) => (print!(concat!($fmt, "\n"), $($arg)*))
 }
 
 /// Writes arguments to VGA buffer from print[ln] macros

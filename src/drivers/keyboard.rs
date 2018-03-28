@@ -1,4 +1,4 @@
-use super::ports;
+use arch::device::port;
 use x86_64::structures::idt::ExceptionStackFrame;
 use spin::Mutex;
 
@@ -10,7 +10,7 @@ lazy_static! {
 }
 
 pub extern "x86-interrupt" fn handler(_: &mut ExceptionStackFrame) {
-    let data = ports::inb(0x60);
+    let data = port::inb(0x60);
     let (scancode, pressed) = if data >= 0x80 {
         (data - 0x80, false)
     } else {
@@ -31,7 +31,7 @@ pub extern "x86-interrupt" fn handler(_: &mut ExceptionStackFrame) {
     }
 
     // Send EOI
-    ::cpu::pic::eoi(33);
+    ::arch::device::pic::eoi(33);
 }
 
 pub struct Keyboard {
