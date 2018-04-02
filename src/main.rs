@@ -32,7 +32,7 @@ pub extern "C" fn rust_begin_panic(
 }
 
 #[no_mangle]
-pub fn _start() -> ! {
+pub extern "C" fn _start() -> ! {
     // print!("Hello");
     // println!(", some numbers: {} \"{}\"", 42, 1.337);
 
