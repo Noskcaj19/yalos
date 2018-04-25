@@ -33,17 +33,11 @@ pub extern "C" fn rust_begin_panic(
 
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
-    // print!("Hello");
-    // println!(", some numbers: {} \"{}\"", 42, 1.337);
-
-    println!("{:^80}", "YALOS 0.0.1");
+    println!("{:^80}", "YALOS 0.0.2");
 
     arch::device::pic::remap();
 
     arch::idt::initalize();
-
-    let _keyboard = drivers::keyboard::initialize();
-    // drivers::keyboard::initialize();
 
     loop {
         util::halt();

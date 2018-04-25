@@ -1,7 +1,7 @@
 use core::fmt;
 
-use volatile::Volatile;
 use spin::Mutex;
+use volatile::Volatile;
 
 const BUFFER_HEIGHT: usize = 25;
 const BUFFER_WIDTH: usize = 80;

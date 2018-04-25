@@ -15,8 +15,9 @@ const PIC2_VECTOR_OFFSET: u8 = 0x28;
 
 /// Remap to PIC so that IRQs 0-7 do not conflict
 pub fn remap() {
-	let pic1_mask = inb(PIC1_DATA_IO_PORT);
-	let pic2_mask = inb(PIC2_DATA_IO_PORT);
+	// We do not care about the original masks
+	// let pic1_mask = inb(PIC1_DATA_IO_PORT);
+	// let pic2_mask = inb(PIC2_DATA_IO_PORT);
 
 	// initialize both PICs
 	outb(PIC1_CMD_IO_PORT, ICW1);

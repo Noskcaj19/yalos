@@ -1,5 +1,6 @@
+#![allow(dead_code)]
+
 use arch::device::port;
-use x86_64::structures::idt::ExceptionStackFrame;
 use spin::Mutex;
 
 lazy_static! {
@@ -9,7 +10,7 @@ lazy_static! {
     });
 }
 
-pub extern "x86-interrupt" fn handler(_: &mut ExceptionStackFrame) {
+pub fn key_handler() {
     let data = port::inb(0x60);
     let (scancode, pressed) = if data >= 0x80 {
         (data - 0x80, false)
@@ -38,8 +39,6 @@ pub struct Keyboard {
     left_shift: bool,
     right_shift: bool,
 }
-
-pub fn initialize() {}
 
 static US: [[char; 2]; 58] = [
     ['\0', '\0'],
