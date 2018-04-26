@@ -15,6 +15,7 @@ extern crate x86_64;
 #[macro_use]
 mod arch;
 mod drivers;
+mod io;
 mod util;
 
 #[lang = "panic_fmt"]
@@ -35,7 +36,7 @@ pub extern "C" fn rust_begin_panic(
 pub extern "C" fn _start() -> ! {
     println!("{:^80}", "YALOS 0.0.2");
 
-    arch::device::pic::remap();
+    arch::device::pic::init();
 
     arch::idt::initalize();
 

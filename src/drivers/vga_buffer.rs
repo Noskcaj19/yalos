@@ -3,6 +3,8 @@ use core::fmt;
 use spin::Mutex;
 use volatile::Volatile;
 
+use io::{Io, Port};
+
 const BUFFER_HEIGHT: usize = 25;
 const BUFFER_WIDTH: usize = 80;
 
@@ -12,7 +14,9 @@ lazy_static! {
         current_line: 0,
         color_code: ColorCode::new(Color::Green, Color::Black),
         buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
-    },);
+    });
+    static ref VGA_COMMAND: Port<u8> = Port::new(0x3D4);
+    static ref VGA_DATA: Port<u8> = Port::new(0x3D5);
 }
 
 /// Encapsulates writing to the VGA buffer
@@ -101,11 +105,11 @@ impl Writer {
 
     pub fn move_cursor(x: u16, y: u16) {
         let pos = y * BUFFER_WIDTH as u16 + x;
-        use arch::device::port::outb;
-        outb(0x3D4, 0x0F);
-        outb(0x3D5, (pos & 0xFF) as u8);
-        outb(0x3D4, 0x0E);
-        outb(0x3D5, ((pos >> 8) & 0xFF) as u8);
+        VGA_COMMAND.write(0x0F);
+        VGA_DATA.write((pos & 0xFF) as u8);
+
+        VGA_COMMAND.write(0x0E);
+        VGA_DATA.write(((pos >> 8) & 0xFF) as u8);
     }
 
     /// Clears a single row of the VGA buffer

@@ -1,6 +1,8 @@
 #![allow(dead_code)]
 
-use arch::device::port;
+use arch::device::pic;
+use io::{Io, Port};
+
 use spin::Mutex;
 
 lazy_static! {
@@ -8,10 +10,11 @@ lazy_static! {
         left_shift: false,
         right_shift: false
     });
+    static ref KEYBOARD: Port<u8> = Port::new(0x60);
 }
 
 pub fn key_handler() {
-    let data = port::inb(0x60);
+    let data = KEYBOARD.read();
     let (scancode, pressed) = if data >= 0x80 {
         (data - 0x80, false)
     } else {
@@ -32,7 +35,7 @@ pub fn key_handler() {
     }
 
     // Send EOI
-    ::arch::device::pic::eoi(33);
+    pic::MASTER.ack();
 }
 
 pub struct Keyboard {
