@@ -9,7 +9,7 @@ pub trait Io {
         + Not<Output = Self::Value>;
 
     fn read(&self) -> Self::Value;
-    fn write(&mut self, value: Self::Value);
+    fn write(&self, value: Self::Value);
 
     #[inline(always)]
     fn readf(&self, flags: Self::Value) -> bool {
@@ -17,7 +17,7 @@ pub trait Io {
     }
 
     #[inline(always)]
-    fn writef(&mut self, flags: Self::Value, value: bool) {
+    fn writef(&self, flags: Self::Value, value: bool) {
         let tmp: Self::Value = match value {
             true => self.read() | flags,
             false => self.read() & !flags,

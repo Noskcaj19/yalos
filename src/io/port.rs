@@ -35,7 +35,7 @@ impl Io for Port<u8> {
 
     /// Write
     #[inline(always)]
-    fn write(&mut self, value: u8) {
+    fn write(&self, value: u8) {
         unsafe {
             asm!("out $1, $0" : : "{al}"(value), "{dx}"(self.port) : "memory" : "intel", "volatile");
         }
@@ -58,7 +58,7 @@ impl Io for Port<u16> {
 
     /// Write
     #[inline(always)]
-    fn write(&mut self, value: u16) {
+    fn write(&self, value: u16) {
         unsafe {
             asm!("out $1, $0" : : "{ax}"(value), "{dx}"(self.port) : "memory" : "intel", "volatile");
         }
@@ -81,7 +81,7 @@ impl Io for Port<u32> {
 
     /// Write
     #[inline(always)]
-    fn write(&mut self, value: u32) {
+    fn write(&self, value: u32) {
         unsafe {
             asm!("out $1, $0" : : "{eax}"(value), "{dx}"(self.port) : "memory" : "intel", "volatile");
         }

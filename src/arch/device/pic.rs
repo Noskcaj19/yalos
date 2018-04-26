@@ -1,7 +1,7 @@
 use io::{Io, Port};
 
-pub static mut MASTER: Pic = Pic::new(0x20);
-pub static mut SLAVE: Pic = Pic::new(0xA0);
+pub static MASTER: Pic = Pic::new(0x20);
+pub static SLAVE: Pic = Pic::new(0xA0);
 
 pub fn init() {
 	// Start initialization
@@ -42,11 +42,11 @@ impl Pic {
 		}
 	}
 
-	pub fn ack(&mut self) {
+	pub fn ack(&self) {
 		self.cmd.write(0x20);
 	}
 
-	pub fn mask_set(&mut self, irq: u8) {
+	pub fn mask_set(&self, irq: u8) {
 		assert!(irq < 8);
 
 		let mut mask = self.data.read();
@@ -54,7 +54,7 @@ impl Pic {
 		self.data.write(mask);
 	}
 
-	pub fn mask_clear(&mut self, irq: u8) {
+	pub fn mask_clear(&self, irq: u8) {
 		assert!(irq < 8);
 
 		let mut mask = self.data.read();
