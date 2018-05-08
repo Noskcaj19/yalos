@@ -103,6 +103,7 @@ impl Writer {
         self.clear_cell(row, col);
     }
 
+    #[cfg(not(test))]
     pub fn move_cursor(x: u16, y: u16) {
         let pos = y * BUFFER_WIDTH as u16 + x;
         VGA_COMMAND.write(0x0F);
@@ -111,6 +112,9 @@ impl Writer {
         VGA_COMMAND.write(0x0E);
         VGA_DATA.write(((pos >> 8) & 0xFF) as u8);
     }
+
+    #[cfg(test)]
+    pub fn move_cursor(_x: u16, _y: u16) {}
 
     /// Clears a single row of the VGA buffer
     fn clear_row(&mut self, row: usize) {
@@ -166,7 +170,7 @@ pub enum Color {
 }
 
 /// A full color code, represents forground and background colors
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct ColorCode(u8);
 
 impl ColorCode {
@@ -177,7 +181,7 @@ impl ColorCode {
 }
 
 /// Represents a character on the screen, contains both the ascii ordinal and ColorCode
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(C)]
 pub struct ScreenChar {
     ascii_char: u8,
@@ -193,4 +197,88 @@ struct Buffer {
 pub fn print(args: fmt::Arguments) {
     use core::fmt::Write;
     WRITER.lock().write_fmt(args).unwrap();
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn write_byte() {
+        let mut writer = construct_writer();
+        writer.write_byte(b'X');
+        writer.write_byte(b'Y');
+
+        for (i, row) in writer.buffer.chars.iter().enumerate() {
+            for (j, screen_char) in row.iter().enumerate() {
+                let screen_char = screen_char.read();
+                if i == 0 && j == 0 {
+                    assert_eq!(screen_char.ascii_char, b'X');
+                    assert_eq!(screen_char.color_code, writer.color_code);
+                } else if i == 0 && j == 1 {
+                    assert_eq!(screen_char.ascii_char, b'Y');
+                    assert_eq!(screen_char.color_code, writer.color_code);
+                } else {
+                    assert_eq!(screen_char, empty_char());
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn write_formatted() {
+        use core::fmt::Write;
+        use std::io::Write as IoWrite;
+
+        let mut writer = construct_writer();
+        writeln!(&mut writer, "a").unwrap();
+        writeln!(&mut writer, "b{}", "c").unwrap();
+
+        for (i, row) in writer.buffer.chars.iter().enumerate() {
+            for (j, screen_char) in row.iter().enumerate() {
+                let screen_char = screen_char.read();
+                if i == 0 && j == 0 {
+                    assert_eq!(screen_char.ascii_char, b'a');
+                    assert_eq!(screen_char.color_code, writer.color_code);
+                } else if i == 1 && j == 0 {
+                    assert_eq!(screen_char.ascii_char, b'b');
+                    assert_eq!(screen_char.color_code, writer.color_code);
+                } else if i == 1 && j == 1 {
+                    assert_eq!(screen_char.ascii_char, b'c');
+                    assert_eq!(screen_char.color_code, writer.color_code);
+                } else if i >= 1 {
+                    assert_eq!(screen_char.ascii_char, b' ');
+                    assert_eq!(screen_char.color_code, writer.color_code);
+                } else {
+                    assert_eq!(screen_char, empty_char());
+                }
+            }
+        }
+    }
+
+    fn construct_writer() -> Writer {
+        use std::boxed::Box;
+
+        let buffer = construct_buffer();
+        Writer {
+            column_position: 0,
+            current_line: 0,
+            color_code: ColorCode::new(Color::Green, Color::Black),
+            buffer: Box::leak(Box::new(buffer)),
+        }
+    }
+
+    fn construct_buffer() -> Buffer {
+        use array_init::array_init;
+        Buffer {
+            chars: array_init(|_| array_init(|_| Volatile::new(empty_char()))),
+        }
+    }
+
+    fn empty_char() -> ScreenChar {
+        ScreenChar {
+            ascii_char: b' ',
+            color_code: ColorCode::new(Color::Green, Color::Black),
+        }
+    }
 }
