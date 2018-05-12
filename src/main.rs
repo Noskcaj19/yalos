@@ -2,12 +2,21 @@
 #![feature(asm)]
 #![feature(const_fn)]
 #![feature(abi_x86_interrupt)]
+#![feature(global_allocator, allocator_api, alloc)]
 #![cfg_attr(test, allow(dead_code, unused_imports, unused_macros))]
 #![no_std]
 #![cfg_attr(not(test), no_main)]
 
 #[macro_use]
+extern crate alloc;
+
+#[macro_use]
+extern crate once;
+
+#[macro_use]
 extern crate lazy_static;
+extern crate linked_list_allocator;
+extern crate os_bootinfo;
 extern crate rlibc;
 extern crate spin;
 extern crate volatile;
@@ -23,6 +32,11 @@ mod arch;
 mod drivers;
 mod io;
 mod util;
+
+use arch::memory::heap::HeapAllocator;
+
+#[global_allocator]
+static HEAP_ALLOCATOR: HeapAllocator = HeapAllocator::new();
 
 #[cfg(not(test))]
 #[lang = "panic_fmt"]
@@ -40,13 +54,20 @@ pub extern "C" fn rust_begin_panic(
 }
 
 #[cfg(not(test))]
+#[lang = "oom"]
 #[no_mangle]
-pub extern "C" fn _start() -> ! {
-    println!("{:^80}", "YALOS 0.0.2");
+pub fn rust_oom() -> ! {
+    panic!("Out of memory");
+}
 
-    arch::device::pic::init();
+#[cfg(not(test))]
+#[no_mangle]
+pub extern "C" fn _start(boot_info_address: usize) -> ! {
+    println!("{:^80}", "YALOS 0.0.3");
 
-    arch::idt::initalize();
+    arch::init(boot_info_address);
+
+    alloc::boxed::Box::new(5);
 
     loop {
         util::halt();

@@ -46,6 +46,7 @@ impl Pic {
 		self.cmd.write(0x20);
 	}
 
+	#[allow(dead_code)]
 	pub fn mask_set(&self, irq: u8) {
 		assert!(irq < 8);
 
@@ -54,6 +55,7 @@ impl Pic {
 		self.data.write(mask);
 	}
 
+	#[allow(dead_code)]
 	pub fn mask_clear(&self, irq: u8) {
 		assert!(irq < 8);
 

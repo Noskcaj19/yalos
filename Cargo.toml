@@ -7,7 +7,14 @@ version = "0.1.0"
 rlibc = "1.0.0"
 spin = "0.4.7"
 volatile = "0.2.3"
-x86_64 = "0.2.0-alpha"
+# x86_64 = "0.2.0-alpha"
+os_bootinfo = "0.2.0"
+linked_list_allocator = "0.6.1"
+once = "0.3.3"
+
+[dependencies.x86_64]
+git = "https://github.com/rust-osdev/x86_64"
+rev = "ed1cf71"
 
 [dependencies.lazy_static]
 features = ["spin_no_std"]
