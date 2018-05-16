@@ -31,6 +31,7 @@ extern crate std;
 mod arch;
 mod drivers;
 mod io;
+mod time;
 mod util;
 
 use arch::memory::heap::HeapAllocator;

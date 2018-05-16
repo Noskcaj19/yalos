@@ -33,6 +33,8 @@ pub fn init(boot_info_address: usize) {
         ::HEAP_ALLOCATOR.init(HEAP_START as usize, HEAP_SIZE as usize);
     }
 
+    device::pit::init();
+
     device::pic::init();
 
     idt::initalize();
