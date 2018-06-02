@@ -36,7 +36,7 @@ mod util;
 
 use arch::memory::heap::HeapAllocator;
 
-#[global_allocator]
+#[cfg_attr(not(test), global_allocator)]
 static HEAP_ALLOCATOR: HeapAllocator = HeapAllocator::new();
 
 #[cfg(not(test))]
