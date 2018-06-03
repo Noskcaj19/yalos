@@ -21,6 +21,8 @@ extern crate rlibc;
 extern crate spin;
 extern crate volatile;
 extern crate x86_64;
+#[macro_use]
+extern crate bitflags;
 
 #[cfg(test)]
 extern crate array_init;
@@ -28,9 +30,10 @@ extern crate array_init;
 extern crate std;
 
 #[macro_use]
+mod io;
+#[macro_use]
 mod arch;
 mod drivers;
-mod io;
 mod time;
 mod util;
 

@@ -11,6 +11,7 @@ volatile = "0.2.3"
 os_bootinfo = "0.2.0"
 linked_list_allocator = "0.6.1"
 once = "0.3.3"
+bitflags = "1.0.3"
 
 [dependencies.x86_64]
 git = "https://github.com/rust-osdev/x86_64"

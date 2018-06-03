@@ -13,7 +13,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "bitflags"
-version = "1.0.1"
+version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
@@ -78,7 +78,7 @@ version = "0.2.0-alpha-019"
 source = "git+https://github.com/rust-osdev/x86_64?rev=ed1cf71#ed1cf71fc821ab2630849838a0008fa5d1fad41f"
 dependencies = [
  "bit_field 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "bitflags 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "bitflags 1.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "os_bootinfo 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "usize_conversions 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "ux 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -89,6 +89,7 @@ name = "yalos"
 version = "0.1.0"
 dependencies = [
  "array-init 0.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "bitflags 1.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "linked_list_allocator 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "once 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -102,7 +103,7 @@ dependencies = [
 [metadata]
 "checksum array-init 0.0.3 (registry+https://github.com/rust-lang/crates.io-index)" = "c3cc8456d0ae81a8c76f59e384683a601548c38949a4bfcb65dd31ded5c75ff3"
 "checksum bit_field 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)" = "ed8765909f9009617974ab6b7d332625b320b33c326b1e9321382ef1999b5d56"
-"checksum bitflags 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)" = "b3c30d3802dfb7281680d6285f2ccdaa8c2d8fee41f93805dba5c4cf50dc23cf"
+"checksum bitflags 1.0.3 (registry+https://github.com/rust-lang/crates.io-index)" = "d0c54bb8f454c567f21197eefcdbf5679d0bd99f2ddbe52e84c77061952e6789"
 "checksum lazy_static 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "c8f31047daa365f19be14b47c29df4f7c3b581832407daabe6ae77397619237d"
 "checksum linked_list_allocator 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)" = "1ee3eeeadfa301cf51b59684c034ad47a9796d03a8b70650d46b6b400a4a3258"
 "checksum nodrop 0.1.12 (registry+https://github.com/rust-lang/crates.io-index)" = "9a2228dca57108069a5262f2ed8bd2e82496d2e074a06d1ccc7ce1687b6ae0a2"
