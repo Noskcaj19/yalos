@@ -67,9 +67,9 @@ pub fn rust_oom() -> ! {
 #[cfg(not(test))]
 #[no_mangle]
 pub extern "C" fn _start(boot_info_address: usize) -> ! {
-    println!("{:^80}", "YALOS 0.0.3");
-
     arch::init(boot_info_address);
+
+    println!("{:^80}", "YALOS 0.0.4");
 
     alloc::boxed::Box::new(5);
 
