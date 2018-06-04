@@ -3,6 +3,7 @@
 #![feature(const_fn)]
 #![feature(abi_x86_interrupt)]
 #![feature(global_allocator, allocator_api, alloc)]
+#![feature(panic_implementation, panic_info_message)]
 #![cfg_attr(test, allow(dead_code, unused_imports, unused_macros))]
 #![no_std]
 #![cfg_attr(not(test), no_main)]
@@ -42,16 +43,28 @@ use arch::memory::heap::HeapAllocator;
 #[cfg_attr(not(test), global_allocator)]
 static HEAP_ALLOCATOR: HeapAllocator = HeapAllocator::new();
 
+use core::panic::PanicInfo;
+
 #[cfg(not(test))]
-#[lang = "panic_fmt"]
+#[panic_implementation]
 #[no_mangle]
-pub extern "C" fn rust_begin_panic(
-    msg: core::fmt::Arguments,
-    file: &'static str,
-    line: u32,
-    _column: u32,
-) -> ! {
-    println!("Panic at {}:{}, {}", file, line, msg);
+pub fn panic_impl(info: &PanicInfo) -> ! {
+    let location = info.location().unwrap();
+    if let Some(msg) = info.payload().downcast_ref::<&str>() {
+        println!("Panic at {}:{}, {}", location.file(), location.line(), msg);
+    } else {
+        if let Some(fmt_args) = info.message() {
+            println!(
+                "Panic at {}:{}, {}",
+                location.file(),
+                location.line(),
+                fmt_args
+            );
+        } else {
+            println!("Panic at {}:{}", location.file(), location.line());
+        }
+    };
+
     loop {
         util::halt();
     }
