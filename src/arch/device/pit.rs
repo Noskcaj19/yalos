@@ -12,7 +12,8 @@ static LOHI: u8 = 0x30;
 static CHAN0_DIVISOR: u16 = 2685;
 
 pub fn init() {
-    COMMAND.write(SELECT_CHAN0 | LOHI | 5);
-    CHAN0.write((CHAN0_DIVISOR & 0xFF) as u8);
-    CHAN0.write((CHAN0_DIVISOR >> 8) as u8);
+    // TODO: Crashing on stdio serial
+    // COMMAND.write(SELECT_CHAN0 | LOHI | 5);
+    // CHAN0.write((CHAN0_DIVISOR & 0xFF) as u8);
+    // CHAN0.write((CHAN0_DIVISOR >> 8) as u8);
 }
