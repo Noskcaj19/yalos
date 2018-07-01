@@ -29,8 +29,8 @@ lazy_static! {
         idt.security_exception.set_handler_fn(exception::security_exception);
 
 
-        idt.interrupts[0].set_handler_fn(irq::pit);
-        idt.interrupts[1].set_handler_fn(irq::keyboard);
+        idt[32].set_handler_fn(irq::pit);
+        idt[33].set_handler_fn(irq::keyboard);
 
         idt
     };

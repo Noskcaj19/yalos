@@ -1,6 +1,6 @@
 use os_bootinfo::BootInfo;
 use x86_64::structures::paging::{
-    MapToError, Mapper, Page, PageTableFlags, PhysFrame, RecursivePageTable, Size4KB,
+    FrameAllocator, MapToError, Mapper, Page, PageTableFlags, RecursivePageTable, Size4KiB,
 };
 use x86_64::VirtAddr;
 
@@ -15,7 +15,7 @@ pub fn init<'a>(
     boot_info: &BootInfo,
     mut rec_page_table: RecursivePageTable<'a>,
 ) -> MemoryController<'a> {
-    assert_has_not_been_called!("memory init must be called only once");
+    assert_has_not_been_called!("memory::init must be called only once");
 
     let mut frame_allocator = AreaFrameAllocator::new(&boot_info.memory_map);
 
@@ -44,29 +44,26 @@ pub fn init<'a>(
     }
 }
 
-pub fn map_page<'a>(
-    page: Page<Size4KB>,
+pub fn map_page<'a, A>(
+    page: Page<Size4KiB>,
     flags: PageTableFlags,
     page_table: &mut RecursivePageTable<'a>,
-    frame_allocator: &mut FrameAllocator,
-) -> Result<(), MapToError> {
+    frame_allocator: &mut A,
+) -> Result<(), MapToError>
+where
+    A: FrameAllocator<Size4KiB>,
+{
     let frame = frame_allocator
-        .allocate_frame()
+        .alloc()
         .expect("OOM - Cannot allocate frame");
 
     page_table
-        .map_to(page, frame, flags, &mut || frame_allocator.allocate_frame())?
+        .map_to(page, frame, flags, frame_allocator)?
         .flush();
 
     Ok(())
 }
 
-pub trait FrameAllocator {
-    fn allocate_frame(&mut self) -> Option<PhysFrame>;
-    fn deallocate_frame(&mut self, frame: PhysFrame);
-}
-
-#[allow(dead_code)]
 pub struct MemoryController<'a> {
     page_table: RecursivePageTable<'a>,
     frame_allocator: AreaFrameAllocator,
@@ -74,7 +71,6 @@ pub struct MemoryController<'a> {
 }
 
 impl<'a> MemoryController<'a> {
-    #[allow(dead_code)]
     pub fn alloc_stack(&mut self, size_in_pages: usize) -> Option<Stack> {
         let &mut MemoryController {
             ref mut page_table,
@@ -88,13 +84,12 @@ impl<'a> MemoryController<'a> {
 #[cfg(test)]
 mod tests {
 
-    // TODO: Renable and catch stack overflows
-    // #[test]
-    // #[should_panic]
-    // // Stack overflow test that could corrupt memory below stack
-    // // Issue: Use stack probes to check required stack pages before function
-    // // Tracking: https://github.com/rust-lang/rust/issues/16012
-    // fn stack_overflow() {
-    //     let x = [0; 99999];
-    // }
+    #[test]
+    #[should_panic]
+    // Stack overflow test that could corrupt memory below stack
+    // Issue: Use stack probes to check required stack pages before function
+    // Tracking: https://github.com/rust-lang/rust/issues/16012
+    fn stack_overflow() {
+        let x = [0; 99999];
+    }
 }

@@ -1,7 +1,7 @@
-#![allow(dead_code)]
-use super::{map_page, FrameAllocator};
+use arch::memory::map_page;
 use x86_64::structures::paging::{
-    Page, PageRangeInclusive, PageSize, PageTableFlags, RecursivePageTable, Size4KB,
+    FrameAllocator, Page, PageRangeInclusive, PageSize, PageTableFlags, RecursivePageTable,
+    Size4KiB,
 };
 
 pub struct StackAllocator {
@@ -15,7 +15,7 @@ impl StackAllocator {
 }
 
 impl StackAllocator {
-    pub fn alloc_stack<FA: FrameAllocator>(
+    pub fn alloc_stack<FA: FrameAllocator<Size4KiB>>(
         &mut self,
         page_table: &mut RecursivePageTable,
         frame_allocator: &mut FA,
@@ -46,7 +46,8 @@ impl StackAllocator {
 
                 // map stack pages to physical frames
                 for page in Page::range_inclusive(start, end) {
-                    let flags = PageTableFlags::PRESENT | PageTableFlags::WRITABLE
+                    let flags = PageTableFlags::PRESENT
+                        | PageTableFlags::WRITABLE
                         | PageTableFlags::NO_EXECUTE;
 
                     map_page(page, flags, page_table, frame_allocator)
@@ -54,7 +55,7 @@ impl StackAllocator {
                 }
 
                 // create a new stack
-                let top_of_stack = end.start_address() + Size4KB::SIZE;
+                let top_of_stack = end.start_address() + Size4KiB::SIZE;
                 Some(Stack::new(
                     top_of_stack.as_u64() as usize,
                     start.start_address().as_u64() as usize,

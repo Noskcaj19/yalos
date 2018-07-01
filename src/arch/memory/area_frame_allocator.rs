@@ -1,6 +1,7 @@
-use super::FrameAllocator;
 use os_bootinfo::{FrameRange, MemoryMap, MemoryRegionType};
-use x86_64::structures::paging::{PhysFrame, PhysFrameRange, Size4KB};
+use x86_64::structures::paging::{
+    FrameAllocator, FrameDeallocator, PhysFrame, PhysFrameRange, Size4KiB,
+};
 
 pub struct AreaFrameAllocator {
     memory_map: MemoryMap,
@@ -17,9 +18,10 @@ impl AreaFrameAllocator {
     }
 }
 
-impl FrameAllocator for AreaFrameAllocator {
-    fn allocate_frame(&mut self) -> Option<PhysFrame> {
-        let region = &mut self.memory_map
+impl FrameAllocator<Size4KiB> for AreaFrameAllocator {
+    fn alloc(&mut self) -> Option<PhysFrame<Size4KiB>> {
+        let region = &mut self
+            .memory_map
             .iter_mut()
             .filter(|region| region.region_type == MemoryRegionType::Usable)
             .next();
@@ -29,7 +31,7 @@ impl FrameAllocator for AreaFrameAllocator {
             .expect("Could not find usable memory region")
             .range;
 
-        let mut phys_range = PhysFrameRange::<Size4KB>::from(*frame_range);
+        let mut phys_range = PhysFrameRange::<Size4KiB>::from(*frame_range);
 
         if let Some(frame) = phys_range.next() {
             frame_range.start_frame_number =
@@ -39,9 +41,11 @@ impl FrameAllocator for AreaFrameAllocator {
             None
         }
     }
+}
 
+impl FrameDeallocator<Size4KiB> for AreaFrameAllocator {
     #[allow(unused)]
-    fn deallocate_frame(&mut self, frame: PhysFrame) {
+    fn dealloc(&mut self, frame: PhysFrame<Size4KiB>) {
         unimplemented!()
     }
 }
