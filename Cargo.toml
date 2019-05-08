@@ -4,6 +4,14 @@ name = "yalos"
 version = "0.1.0"
 edition = "2018"
 
+[[test]]
+name = "panic_handler"
+harness = false
+
+#[[test]]
+#name = "stack_overflow"
+#harness = false
+
 [package.metadata.bootimage]
 default-target = "x86_64-yalos.json"
 test-args = [

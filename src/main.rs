@@ -1,10 +1,11 @@
-#![feature(lang_items)]
-#![feature(asm)]
 #![feature(panic_info_message)]
 #![cfg_attr(test, allow(dead_code, unused_imports, unused_macros))]
 #![feature(alloc_error_handler)]
 #![no_std]
-#![cfg_attr(not(test), no_main)]
+#![no_main]
+#![feature(custom_test_frameworks)]
+#![test_runner(yalos::test_runner)]
+#![reexport_test_harness_main = "test_main"]
 
 #[macro_use]
 extern crate yalos;
@@ -15,11 +16,14 @@ use core::panic::PanicInfo;
 entry_point!(kernel_main);
 
 pub fn kernel_main(boot_info: &'static BootInfo) -> ! {
-    yalos::arch::init(boot_info);
+    yalos::init(boot_info);
 
     println!("{:^80}", "YALOS 0.0.4");
 
     //    alloc::boxed::Box::new(5);
+
+    #[cfg(test)]
+    test_main();
 
     loop {
         yalos::util::halt();
@@ -52,4 +56,10 @@ pub fn panic(info: &PanicInfo) -> ! {
     loop {
         yalos::util::halt();
     }
+}
+
+#[cfg(test)]
+#[panic_handler]
+fn panic(info: &PanicInfo) -> ! {
+    yalos::test_panic_handler(info)
 }

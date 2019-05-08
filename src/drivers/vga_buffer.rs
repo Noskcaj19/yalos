@@ -203,87 +203,38 @@ pub fn print(args: fmt::Arguments) {
     WRITER.lock().write_fmt(args).unwrap();
 }
 
-#[cfg(test)]
-mod test {
-    use super::*;
+#[test_case]
+fn test_println_simple() {
+    serial_print!("test_println... ");
+    println!("test_println_simple output");
+    serial_println!("[ok]");
+}
 
-    #[test]
-    fn write_byte() {
-        let mut writer = construct_writer();
-        writer.write_byte(b'X');
-        writer.write_byte(b'Y');
-
-        for (i, row) in writer.buffer.chars.iter().enumerate() {
-            for (j, screen_char) in row.iter().enumerate() {
-                let screen_char = screen_char.read();
-                if i == 0 && j == 0 {
-                    assert_eq!(screen_char.ascii_char, b'X');
-                    assert_eq!(screen_char.color_code, writer.color_code);
-                } else if i == 0 && j == 1 {
-                    assert_eq!(screen_char.ascii_char, b'Y');
-                    assert_eq!(screen_char.color_code, writer.color_code);
-                } else {
-                    assert_eq!(screen_char, empty_char());
-                }
-            }
-        }
+#[test_case]
+fn test_println_many() {
+    serial_print!("test_println_many... ");
+    for _ in 0..20 {
+        println!("test_println_many output");
     }
+    serial_println!("[ok]");
+}
 
-    #[test]
-    fn write_formatted() {
-        use core::fmt::Write;
-        use std::io::Write as IoWrite;
+#[test_case]
+fn test_println_output() {
+    use core::fmt::Write;
+    use x86_64::instructions::interrupts;
 
-        let mut writer = construct_writer();
-        writeln!(&mut writer, "a").unwrap();
-        #[allow(clippy::write_literal)]
-        writeln!(&mut writer, "b{}", "c").unwrap();
+    serial_print!("test_println_output... ");
 
-        for (i, row) in writer.buffer.chars.iter().enumerate() {
-            for (j, screen_char) in row.iter().enumerate() {
-                let screen_char = screen_char.read();
-                if i == 0 && j == 0 {
-                    assert_eq!(screen_char.ascii_char, b'a');
-                    assert_eq!(screen_char.color_code, writer.color_code);
-                } else if i == 1 && j == 0 {
-                    assert_eq!(screen_char.ascii_char, b'b');
-                    assert_eq!(screen_char.color_code, writer.color_code);
-                } else if i == 1 && j == 1 {
-                    assert_eq!(screen_char.ascii_char, b'c');
-                    assert_eq!(screen_char.color_code, writer.color_code);
-                } else if i >= 1 {
-                    assert_eq!(screen_char.ascii_char, b' ');
-                    assert_eq!(screen_char.color_code, writer.color_code);
-                } else {
-                    assert_eq!(screen_char, empty_char());
-                }
-            }
+    let s = "Some test string that fits on a single line";
+    interrupts::without_interrupts(|| {
+        let mut writer = WRITER.lock();
+        writeln!(writer, "\n{}", s).expect("writeln failed");
+        for (i, c) in s.chars().enumerate() {
+            let screen_char = writer.buffer.chars[BUFFER_HEIGHT - 2][i].read();
+            assert_eq!(char::from(screen_char.ascii_char), c);
         }
-    }
+    });
 
-    fn construct_writer() -> Writer {
-        use std::boxed::Box;
-
-        let buffer = construct_buffer();
-        Writer {
-            column_position: 0,
-            current_line: 0,
-            color_code: ColorCode::new(Color::Green, Color::Black),
-            buffer: Box::leak(Box::new(buffer)),
-        }
-    }
-
-    fn construct_buffer() -> Buffer {
-        use array_init::array_init;
-        Buffer {
-            chars: array_init(|_| array_init(|_| Volatile::new(empty_char()))),
-        }
-    }
-
-    fn empty_char() -> ScreenChar {
-        ScreenChar {
-            ascii_char: b' ',
-            color_code: ColorCode::new(Color::Green, Color::Black),
-        }
-    }
+    serial_println!("[ok]");
 }
