@@ -10,7 +10,7 @@ interrupt_stack!(debug, stack, {
 
 interrupt_stack!(non_maskable_interrupt, stack, {
     println!("Stack frame: {:#?}", stack);
-    println!("Non-maskable interrupt");
+    println!("Non-maskable interrupts");
 });
 
 interrupt_stack!(breakpoint, stack, {

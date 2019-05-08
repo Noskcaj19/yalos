@@ -1,9 +1,10 @@
 use core::fmt;
 
+use lazy_static::lazy_static;
 use spin::Mutex;
 use volatile::Volatile;
 
-use io::{Io, Port};
+use x86_64::instructions::port::Port;
 
 const BUFFER_HEIGHT: usize = 25;
 const BUFFER_WIDTH: usize = 80;
@@ -15,9 +16,10 @@ lazy_static! {
         color_code: ColorCode::new(Color::Green, Color::Black),
         buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
     });
-    static ref VGA_COMMAND: Port<u8> = Port::new(0x3D4);
-    static ref VGA_DATA: Port<u8> = Port::new(0x3D5);
 }
+
+static mut VGA_COMMAND: Port<u8> = Port::new(0x3D4);
+static mut VGA_DATA: Port<u8> = Port::new(0x3D5);
 
 /// Encapsulates writing to the VGA buffer
 pub struct Writer {
@@ -106,11 +108,13 @@ impl Writer {
     #[cfg(not(test))]
     pub fn move_cursor(x: u16, y: u16) {
         let pos = y * BUFFER_WIDTH as u16 + x;
-        VGA_COMMAND.write(0x0F);
-        VGA_DATA.write((pos & 0xFF) as u8);
+        unsafe {
+            VGA_COMMAND.write(0x0F);
+            VGA_DATA.write((pos & 0xFF) as u8);
 
-        VGA_COMMAND.write(0x0E);
-        VGA_DATA.write(((pos >> 8) & 0xFF) as u8);
+            VGA_COMMAND.write(0x0E);
+            VGA_DATA.write(((pos >> 8) & 0xFF) as u8);
+        }
     }
 
     #[cfg(test)]
@@ -232,6 +236,7 @@ mod test {
 
         let mut writer = construct_writer();
         writeln!(&mut writer, "a").unwrap();
+        #[allow(clippy::write_literal)]
         writeln!(&mut writer, "b{}", "c").unwrap();
 
         for (i, row) in writer.buffer.chars.iter().enumerate() {

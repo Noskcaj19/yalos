@@ -2,21 +2,33 @@
 authors = ["Noskcaj <kcajdev@gmail.com>"]
 name = "yalos"
 version = "0.1.0"
+edition = "2018"
+
+[package.metadata.bootimage]
+default-target = "x86_64-yalos.json"
+test-args = [
+    "-device", "isa-debug-exit,iobase=0xf4,iosize=0x04", "-serial", "mon:stdio",
+    "-display", "none"
+]
+test-success-exit-code = 33         # (0x10 << 1) | 1
 
 [dependencies]
-rlibc = "1.0.0"
-spin = "0.4.7"
+bootloader = { version = "0.6.0", features = ["map_physical_memory"]}
 volatile = "0.2.3"
-os_bootinfo = "0.2.0"
-linked_list_allocator = "0.6.1"
-once = "0.3.3"
+spin = "0.4.9"
 bitflags = "1.0.3"
-x86_64 = "0.2.6"
+x86_64 = "0.6.0"
+uart_16550 = "0.2.0"
+pic8259_simple = "0.1.1"
+pc-keyboard = "0.3.1"
 
 
 [dependencies.lazy_static]
-features = ["spin_no_std"]
 version = "1.0"
+features = ["spin_no_std"]
 
-[dev-dependencies]
-array-init = "0.0.3"
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"

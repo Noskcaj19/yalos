@@ -1,6 +1,6 @@
-use arch::device::pic;
-use io::{Io, Port};
-use time;
+use super::PICS;
+use crate::time;
+use x86_64::instructions::port::Port;
 
 interrupt!(pit, {
     const PIT_RATE: u64 = 2_250_286;
@@ -10,15 +10,17 @@ interrupt!(pit, {
     offset.1 = sum % 1_000_000_000;
     offset.0 += sum / 1_000_000_000;
 
-    pic::MASTER.ack();
+    unsafe {
+        PICS.lock().notify_end_of_interrupt(32);
+    }
 });
 
 pub static KEYBOARD: Port<u8> = Port::new(0x60);
 
 interrupt!(keyboard, {
-    let data = KEYBOARD.read();
+    crate::drivers::keyboard::key_handler();
 
-    println!("{}", data);
-
-    pic::MASTER.ack();
+    unsafe {
+        PICS.lock().notify_end_of_interrupt(33);
+    }
 });

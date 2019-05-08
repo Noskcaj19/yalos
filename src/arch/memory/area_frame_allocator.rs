@@ -1,4 +1,4 @@
-use os_bootinfo::{FrameRange, MemoryMap, MemoryRegionType};
+use bootloader_precompiled::bootinfo::{FrameRange, MemoryMap, MemoryRegionType};
 use x86_64::structures::paging::{
     FrameAllocator, FrameDeallocator, PhysFrame, PhysFrameRange, Size4KiB,
 };
@@ -31,7 +31,7 @@ impl FrameAllocator<Size4KiB> for AreaFrameAllocator {
             .expect("Could not find usable memory region")
             .range;
 
-        let mut phys_range = PhysFrameRange::<Size4KiB>::from(*frame_range);
+        let mut phys_range = PhysFrameRange::<Size4KiB>::from(::core::mem::transmute(*frame_range));
 
         if let Some(frame) = phys_range.next() {
             frame_range.start_frame_number =

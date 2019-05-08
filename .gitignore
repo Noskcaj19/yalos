@@ -1,3 +1,5 @@
 bootimage.bin
 /target
 **/*.rs.bk
+
+/.idea/

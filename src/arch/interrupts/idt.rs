@@ -1,9 +1,11 @@
-use super::interrupt::*;
-use x86_64::structures::idt::Idt;
+use lazy_static::lazy_static;
+use x86_64::structures::idt::InterruptDescriptorTable;
+
+use super::{exception, irq};
 
 lazy_static! {
-    static ref IDT: Idt = {
-        let mut idt = Idt::new();
+    pub static ref IDT: InterruptDescriptorTable = {
+        let mut idt = InterruptDescriptorTable::new();
 
         idt.divide_by_zero.set_handler_fn(exception::divide_by_zero);
         idt.debug.set_handler_fn(exception::debug);
@@ -34,9 +36,4 @@ lazy_static! {
 
         idt
     };
-}
-
-pub fn initalize() {
-    IDT.load();
-    println!("Initalized IDT")
 }

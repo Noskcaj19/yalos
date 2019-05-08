@@ -2,9 +2,8 @@
 #[macro_export]
 macro_rules! print {
     ($($arg:tt)*) => {{
-        use $crate::{io, drivers};
-        drivers::vga_buffer::print(format_args!($($arg)*));
-        io::serial::print(format_args!($($arg)*));
+        $crate::drivers::vga_buffer::print(format_args!($($arg)*));
+        $crate::devices::serial::print(format_args!($($arg)*));
     }}
 }
 

@@ -1,9 +1,10 @@
 #![allow(dead_code)]
 
-use arch::device::pic;
-use io::{Io, Port};
-
+use lazy_static::lazy_static;
 use spin::Mutex;
+use x86_64::instructions::port::Port;
+
+use crate::arch::interrupts::PICS;
 
 lazy_static! {
     static ref KEYBOARD_STATE: Mutex<Keyboard> = Mutex::new(Keyboard {
@@ -14,7 +15,7 @@ lazy_static! {
 }
 
 pub fn key_handler() {
-    let data = KEYBOARD.read();
+    let data = unsafe { KEYBOARD.read() };
     let (scancode, pressed) = if data >= 0x80 {
         (data - 0x80, false)
     } else {
@@ -30,12 +31,14 @@ pub fn key_handler() {
 
     let character = get_char(scancode, keyboard.left_shift | keyboard.right_shift);
 
-    if pressed == true && character != '\0' {
+    if pressed && character != '\0' {
         print!("{}", character);
     }
 
     // Send EOI
-    pic::MASTER.ack();
+    unsafe {
+        PICS.lock().notify_end_of_interrupt(33);
+    }
 }
 
 pub struct Keyboard {
