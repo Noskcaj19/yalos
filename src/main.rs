@@ -12,6 +12,7 @@ extern crate yalos;
 
 use bootloader::{entry_point, BootInfo};
 use core::panic::PanicInfo;
+use log::info;
 
 entry_point!(kernel_main);
 
@@ -19,6 +20,8 @@ pub fn kernel_main(boot_info: &'static BootInfo) -> ! {
     yalos::init(boot_info);
 
     println!("{:^80}", "YALOS 0.0.4");
+
+    info!("Logging system test");
 
     //    alloc::boxed::Box::new(5);
 

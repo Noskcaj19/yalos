@@ -11,9 +11,11 @@ pub fn init(boot_info: &'static BootInfo) {
     //    use x86_64::structures::paging::{PageTable, RecursivePageTable};
 
     for i in boot_info.memory_map.iter() {
-        println!(
+        log::trace!(
             "{:#08x}.{:#08x} - {:?}",
-            i.range.start_frame_number, i.range.end_frame_number, i.region_type
+            i.range.start_frame_number,
+            i.range.end_frame_number,
+            i.region_type
         );
     }
 

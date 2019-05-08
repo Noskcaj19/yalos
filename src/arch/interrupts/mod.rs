@@ -1,3 +1,4 @@
+use log::{debug, trace};
 use pic8259_simple::ChainedPics;
 
 pub mod exception;
@@ -12,11 +13,12 @@ pub static PICS: spin::Mutex<ChainedPics> =
 
 pub fn initialize() {
     idt::IDT.load();
-    println!("Initialized IDT");
+    trace!("Initialized IDT");
     unsafe {
         PICS.lock().initialize();
     }
-    println!("Initialized chained PICs");
+    trace!("Initialized chained PICs");
     x86_64::instructions::interrupts::enable();
-    println!("Interrupts enabled");
+    trace!("Interrupts enabled");
+    debug!("Interrupts ready")
 }

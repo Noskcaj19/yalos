@@ -32,7 +32,7 @@ pub fn key_handler() {
     let character = get_char(scancode, keyboard.left_shift | keyboard.right_shift);
 
     if pressed && character != '\0' {
-        print!("{}", character);
+        log::info!("{}", character);
     }
 
     // Send EOI

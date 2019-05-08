@@ -4,10 +4,6 @@ name = "yalos"
 version = "0.1.0"
 edition = "2018"
 
-[[test]]
-name = "panic_handler"
-harness = false
-
 #[[test]]
 #name = "stack_overflow"
 #harness = false
@@ -20,6 +16,10 @@ test-args = [
 ]
 test-success-exit-code = 33         # (0x10 << 1) | 1
 
+[[test]]
+name = "panic_handler"
+harness = false
+
 [dependencies]
 bootloader = { version = "0.6.0", features = ["map_physical_memory"]}
 volatile = "0.2.3"
@@ -29,6 +29,7 @@ x86_64 = "0.6.0"
 uart_16550 = "0.2.0"
 pic8259_simple = "0.1.1"
 pc-keyboard = "0.3.1"
+log = "0.4.6"
 
 
 [dependencies.lazy_static]

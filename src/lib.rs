@@ -8,7 +8,9 @@
 
 use core::panic::PanicInfo;
 
-use bootloader::{entry_point, BootInfo};
+#[cfg(test)]
+use bootloader::entry_point;
+use bootloader::BootInfo;
 
 #[macro_use]
 pub mod devices;
@@ -17,6 +19,7 @@ pub mod macros;
 #[macro_use]
 pub mod arch;
 pub mod drivers;
+pub mod logging;
 mod time;
 pub mod util;
 
@@ -26,6 +29,8 @@ pub mod util;
 //static HEAP_ALLOCATOR: HeapAllocator = HeapAllocator::new();
 
 pub fn init(boot_info: &'static BootInfo) {
+    // if we can't setup logging we can't warn about it
+    let _ = logging::init();
     arch::init(boot_info);
 }
 
